@@ -12,8 +12,8 @@
     "shelljs": "^0.8.3"
   },
   "scripts": {
-    "start": "node ./out/index.js",
-    "build": "npx shx rm ./out/index.js && npx tsc"
+    "test": "node ./out/index.js",
+    "start": "npx tsc && yarn test"
   },
   "prettier": {
     "tabWidth": 2,
