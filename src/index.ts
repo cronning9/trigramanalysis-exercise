@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+import generateRandom from './lib/generateRandom';
+
 const asyncFs = fs.promises;
 
 function createTrigram(text: string[]): Map<string, string[]> {
@@ -31,6 +33,27 @@ function handleInputText(text: string): string[] {
   return array.filter(str => str !== '');
 }
 
+function generateText(trigram: Map<string, string[]>, length: number) {
+  const keys = Array.from(trigram.keys());
+  let output = '';
+
+  let words = 0;
+  while (words + 3 <= length) {
+    const key = keys[generateRandom(keys.length - 1)];
+    const value = trigram.get(key);
+    if (!value) {
+      throw new Error('This should never happen, wtf');
+    }
+
+    const third = value[generateRandom(value.length - 1)];
+    output += `${key} ${third} `;
+
+    words += 3;
+  }
+
+  return output;
+}
+
 async function run() {
   const text = await asyncFs.readFile(
     path.resolve(__dirname, '..', 'txt-source', 'test.txt'),
@@ -39,9 +62,10 @@ async function run() {
   console.log('Input text: ', handleInputText(text));
 
   const trigram = createTrigram(handleInputText(text));
-  for (const [key, value] of trigram.entries()) {
-    console.log(`${key} -> ${value}`);
-  }
+  console.log('trigram: ', trigram);
+
+  const output = generateText(trigram, 10);
+  console.log('output: ', output);
 }
 
 run();
