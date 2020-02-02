@@ -17,7 +17,7 @@ function createTrigram(text: string[]): Map<string, string[]> {
     const value = trigram.get(key);
 
     if (value) {
-      value.push(text[i + 2]);
+      !value.includes(text[i + 2]) && value.push(text[i + 2]);
     } else {
       trigram.set(key, [text[i + 2]]);
     }
@@ -33,25 +33,40 @@ function handleInputText(text: string): string[] {
   return array.filter(str => str !== '');
 }
 
-function generateText(trigram: Map<string, string[]>, length: number) {
+function selectNextWord(pair: string, trigram: Map<string, string[]>) {
+  const values = trigram.get(pair);
+  if (!values) {
+    return;
+  }
+  return values[generateRandom(values.length)];
+}
+
+function generateText(trigram: Map<string, string[]>, maxLength: number) {
   const keys = Array.from(trigram.keys());
-  let output = '';
+  const output: string[] = [];
 
-  let words = 0;
-  while (words + 3 <= length) {
-    const key = keys[generateRandom(keys.length - 1)];
-    const value = trigram.get(key);
-    if (!value) {
-      throw new Error('This should never happen, wtf');
+  let pair = keys[generateRandom(keys.length)];
+  let nextWord = selectNextWord(pair, trigram);
+  if (!nextWord) {
+    throw new Error('Something strange has happened.');
+  }
+  pair.split(' ').forEach(str => output.push(str));
+  output.push(nextWord);
+
+  // search for a pair that matches the last two words in the string
+  // if it exists in the trigram, select a random next character.
+  // else, return;
+  while (output.length <= maxLength) {
+    pair = `${output[output.length - 2]} ${output[output.length - 1]}`;
+    nextWord = selectNextWord(pair, trigram);
+    if (!nextWord) {
+      return output.join(' ');
     }
-
-    const third = value[generateRandom(value.length - 1)];
-    output += `${key} ${third} `;
-
-    words += 3;
+    output.push(nextWord);
   }
 
-  return output;
+  // TODO: consider punctuation.
+  return output.join(' ');
 }
 
 async function run() {
@@ -64,7 +79,7 @@ async function run() {
   const trigram = createTrigram(handleInputText(text));
   console.log('trigram: ', trigram);
 
-  const output = generateText(trigram, 10);
+  const output = generateText(trigram, 20);
   console.log('output: ', output);
 }
 
