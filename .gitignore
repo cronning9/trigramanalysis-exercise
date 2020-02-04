@@ -1,4 +1,7 @@
 node_modules
-out
-txt-source
+out/**
+txt-source/**
 .vscode
+
+!out/.gitkeep
+!txt-source/.gitkeep
