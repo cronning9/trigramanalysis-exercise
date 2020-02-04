@@ -9,10 +9,7 @@ function selectNextWord(pair: string, trigramTable: TrigramTable) {
   return values[getRandomNumber(values.length)];
 }
 
-export default function generateText(
-  trigramTable: TrigramTable,
-  maxLength: number
-) {
+export default function generateText(trigramTable: TrigramTable, maxLength: number) {
   const keys = Array.from(trigramTable.keys());
   const output: string[] = [];
 
