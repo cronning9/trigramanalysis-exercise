@@ -71,11 +71,17 @@ function generateText(trigramTable: TrigramTable, maxLength: number) {
   return output.join(' ');
 }
 
-async function run() {
-  const text = await asyncFs.readFile(
-    path.resolve(__dirname, '..', 'txt-source', 'test2.txt'),
-    { encoding: 'utf8' }
-  );
+async function run(sources: string[]) {
+  let text = '';
+  for (const src of sources) {
+    const txt = await asyncFs.readFile(
+      path.resolve(__dirname, '..', 'txt-source', src),
+      {
+        encoding: 'utf8'
+      }
+    );
+    text += `${txt} `;
+  }
 
   const trigramTable = createtrigramTableTable(handleInputText(text));
   const lengthOccurrences = Analytics.getValueLengthOccurrances(trigramTable);
@@ -85,8 +91,13 @@ async function run() {
     console.log(`Pairs with ${len} potential follow: ${occurrences}`);
   }
 
-  const output = generateText(trigramTable, 500);
+  const output = generateText(trigramTable, 400);
   console.log('output: ', output);
 }
 
-run();
+function entryPoint() {
+  const texts = process.argv.slice(2);
+  run(texts);
+}
+
+entryPoint();
